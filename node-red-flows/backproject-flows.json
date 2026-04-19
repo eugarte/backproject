@@ -1,0 +1,824 @@
+[
+  {
+    "id": "tab_backproject",
+    "type": "tab",
+    "label": "BackProject API",
+    "disabled": false,
+    "info": "Flujos para consumir la API de BackProject en Hostinger"
+  },
+  {
+    "id": "tab_msproducto",
+    "type": "tab",
+    "label": "MS Producto",
+    "disabled": false,
+    "info": "Endpoints de productos, categorías y tipos"
+  },
+  {
+    "id": "tab_msseguridad",
+    "type": "tab",
+    "label": "MS Seguridad",
+    "disabled": false,
+    "info": "Autenticación, usuarios y roles"
+  },
+  {
+    "id": "tab_msclientes",
+    "type": "tab",
+    "label": "MS Clientes",
+    "disabled": false,
+    "info": "Gestión de clientes y direcciones"
+  },
+  {
+    "id": "tab_mssistemas",
+    "type": "tab",
+    "label": "MS Sistemas",
+    "disabled": false,
+    "info": "Configuraciones y catálogos"
+  },
+  {
+    "id": "tab_health",
+    "type": "tab",
+    "label": "Health & Utils",
+    "disabled": false,
+    "info": "Health check y utilidades"
+  },
+  {
+    "id": "health_inject",
+    "type": "inject",
+    "z": "tab_health",
+    "name": "Check Health",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "health_request"
+      ]
+    ]
+  },
+  {
+    "id": "health_request",
+    "type": "http request",
+    "z": "tab_health",
+    "name": "GET /health",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/health",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 350,
+    "y": 80,
+    "wires": [
+      [
+        "health_debug"
+      ]
+    ]
+  },
+  {
+    "id": "health_debug",
+    "type": "debug",
+    "z": "tab_health",
+    "name": "Health Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 570,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "root_inject",
+    "type": "inject",
+    "z": "tab_health",
+    "name": "Get API Info",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 140,
+    "wires": [
+      [
+        "root_request"
+      ]
+    ]
+  },
+  {
+    "id": "root_request",
+    "type": "http request",
+    "z": "tab_health",
+    "name": "GET /",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 340,
+    "y": 140,
+    "wires": [
+      [
+        "root_debug"
+      ]
+    ]
+  },
+  {
+    "id": "root_debug",
+    "type": "debug",
+    "z": "tab_health",
+    "name": "API Info",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 550,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "products_inject",
+    "type": "inject",
+    "z": "tab_msproducto",
+    "name": "Get Products",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 150,
+    "y": 80,
+    "wires": [
+      [
+        "products_request"
+      ]
+    ]
+  },
+  {
+    "id": "products_request",
+    "type": "http request",
+    "z": "tab_msproducto",
+    "name": "GET /api/v1/products",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/products",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 380,
+    "y": 80,
+    "wires": [
+      [
+        "products_debug"
+      ]
+    ]
+  },
+  {
+    "id": "products_debug",
+    "type": "debug",
+    "z": "tab_msproducto",
+    "name": "Products Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 610,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "categories_inject",
+    "type": "inject",
+    "z": "tab_msproducto",
+    "name": "Get Categories",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 160,
+    "y": 140,
+    "wires": [
+      [
+        "categories_request"
+      ]
+    ]
+  },
+  {
+    "id": "categories_request",
+    "type": "http request",
+    "z": "tab_msproducto",
+    "name": "GET /api/v1/categories",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/categories",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 390,
+    "y": 140,
+    "wires": [
+      [
+        "categories_debug"
+      ]
+    ]
+  },
+  {
+    "id": "categories_debug",
+    "type": "debug",
+    "z": "tab_msproducto",
+    "name": "Categories Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 620,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "product_types_inject",
+    "type": "inject",
+    "z": "tab_msproducto",
+    "name": "Get Product Types",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 200,
+    "wires": [
+      [
+        "product_types_request"
+      ]
+    ]
+  },
+  {
+    "id": "product_types_request",
+    "type": "http request",
+    "z": "tab_msproducto",
+    "name": "GET /api/v1/product-types",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/product-types",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 400,
+    "y": 200,
+    "wires": [
+      [
+        "product_types_debug"
+      ]
+    ]
+  },
+  {
+    "id": "product_types_debug",
+    "type": "debug",
+    "z": "tab_msproducto",
+    "name": "Product Types Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 640,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "auth_catalogs_inject",
+    "type": "inject",
+    "z": "tab_msseguridad",
+    "name": "Get Auth Catalogs",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 80,
+    "wires": [
+      [
+        "auth_catalogs_request"
+      ]
+    ]
+  },
+  {
+    "id": "auth_catalogs_request",
+    "type": "http request",
+    "z": "tab_msseguridad",
+    "name": "GET /api/v1/auth/catalogs",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/auth/catalogs",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 400,
+    "y": 80,
+    "wires": [
+      [
+        "auth_catalogs_debug"
+      ]
+    ]
+  },
+  {
+    "id": "auth_catalogs_debug",
+    "type": "debug",
+    "z": "tab_msseguridad",
+    "name": "Auth Catalogs Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 630,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "login_inject",
+    "type": "inject",
+    "z": "tab_msseguridad",
+    "name": "Login Test",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"email\":\"usuario@test.com\",\"password\":\"password123\"}",
+    "payloadType": "json",
+    "x": 150,
+    "y": 140,
+    "wires": [
+      [
+        "login_request"
+      ]
+    ]
+  },
+  {
+    "id": "login_request",
+    "type": "http request",
+    "z": "tab_msseguridad",
+    "name": "POST /api/v1/auth/login",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/auth/login",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [
+      {
+        "keyType": "Content-Type",
+        "keyValue": "",
+        "valueType": "application/json",
+        "valueValue": ""
+      }
+    ],
+    "x": 370,
+    "y": 140,
+    "wires": [
+      [
+        "login_debug"
+      ]
+    ]
+  },
+  {
+    "id": "login_debug",
+    "type": "debug",
+    "z": "tab_msseguridad",
+    "name": "Login Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 590,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "register_inject",
+    "type": "inject",
+    "z": "tab_msseguridad",
+    "name": "Register Test",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "{\"email\":\"test@example.com\",\"password\":\"Test123!\",\"first_name\":\"Test\",\"last_name\":\"User\"}",
+    "payloadType": "json",
+    "x": 160,
+    "y": 200,
+    "wires": [
+      [
+        "register_request"
+      ]
+    ]
+  },
+  {
+    "id": "register_request",
+    "type": "http request",
+    "z": "tab_msseguridad",
+    "name": "POST /api/v1/auth/register",
+    "method": "POST",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/auth/register",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [
+      {
+        "keyType": "Content-Type",
+        "keyValue": "",
+        "valueType": "application/json",
+        "valueValue": ""
+      }
+    ],
+    "x": 380,
+    "y": 200,
+    "wires": [
+      [
+        "register_debug"
+      ]
+    ]
+  },
+  {
+    "id": "register_debug",
+    "type": "debug",
+    "z": "tab_msseguridad",
+    "name": "Register Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 600,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "system_catalogs_inject",
+    "type": "inject",
+    "z": "tab_mssistemas",
+    "name": "Get System Catalogs",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 180,
+    "y": 80,
+    "wires": [
+      [
+        "system_catalogs_request"
+      ]
+    ]
+  },
+  {
+    "id": "system_catalogs_request",
+    "type": "http request",
+    "z": "tab_mssistemas",
+    "name": "GET /api/v1/system/catalogs",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/system/catalogs",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 410,
+    "y": 80,
+    "wires": [
+      [
+        "system_catalogs_debug"
+      ]
+    ]
+  },
+  {
+    "id": "system_catalogs_debug",
+    "type": "debug",
+    "z": "tab_mssistemas",
+    "name": "System Catalogs Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 640,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "configs_inject",
+    "type": "inject",
+    "z": "tab_mssistemas",
+    "name": "Get Configs (Auth)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 140,
+    "wires": [
+      [
+        "configs_function"
+      ]
+    ]
+  },
+  {
+    "id": "configs_function",
+    "type": "function",
+    "z": "tab_mssistemas",
+    "name": "Add JWT Token",
+    "func": "// Agrega tu token JWT aquí\nmsg.headers = {\n    \"Authorization\": \"Bearer YOUR_JWT_TOKEN_HERE\"\n};\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 140,
+    "wires": [
+      [
+        "configs_request"
+      ]
+    ]
+  },
+  {
+    "id": "configs_request",
+    "type": "http request",
+    "z": "tab_mssistemas",
+    "name": "GET /api/v1/system/configs",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/system/configs",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 590,
+    "y": 140,
+    "wires": [
+      [
+        "configs_debug"
+      ]
+    ]
+  },
+  {
+    "id": "configs_debug",
+    "type": "debug",
+    "z": "tab_mssistemas",
+    "name": "Configs Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 810,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "customers_inject",
+    "type": "inject",
+    "z": "tab_msclientes",
+    "name": "Get Customers (Auth)",
+    "props": [
+      {
+        "p": "payload"
+      }
+    ],
+    "repeat": "",
+    "crontab": "",
+    "once": false,
+    "onceDelay": 0.1,
+    "topic": "",
+    "payload": "",
+    "payloadType": "date",
+    "x": 170,
+    "y": 80,
+    "wires": [
+      [
+        "customers_function"
+      ]
+    ]
+  },
+  {
+    "id": "customers_function",
+    "type": "function",
+    "z": "tab_msclientes",
+    "name": "Add JWT Token",
+    "func": "// Agrega tu token JWT aquí\nmsg.headers = {\n    \"Authorization\": \"Bearer YOUR_JWT_TOKEN_HERE\"\n};\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 380,
+    "y": 80,
+    "wires": [
+      [
+        "customers_request"
+      ]
+    ]
+  },
+  {
+    "id": "customers_request",
+    "type": "http request",
+    "z": "tab_msclientes",
+    "name": "GET /api/v1/customers",
+    "method": "GET",
+    "ret": "obj",
+    "paytoqs": "ignore",
+    "url": "https://www.support.aiproject.es/api/v1/customers",
+    "tls": "",
+    "persist": false,
+    "proxy": "",
+    "insecureHTTPParser": false,
+    "authType": "",
+    "senderr": false,
+    "headers": [],
+    "x": 590,
+    "y": 80,
+    "wires": [
+      [
+        "customers_debug"
+      ]
+    ]
+  },
+  {
+    "id": "customers_debug",
+    "type": "debug",
+    "z": "tab_msclientes",
+    "name": "Customers Response",
+    "active": true,
+    "tosidebar": true,
+    "console": false,
+    "tostatus": false,
+    "complete": "payload",
+    "targetType": "msg",
+    "statusVal": "",
+    "statusType": "auto",
+    "x": 810,
+    "y": 80,
+    "wires": []
+  }
+]
