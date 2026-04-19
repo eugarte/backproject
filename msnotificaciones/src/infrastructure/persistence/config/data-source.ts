@@ -1,6 +1,9 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { NotificationEntity } from '../entities/NotificationEntity';
+import { NotificationTypeEntity } from '../entities/NotificationTypeEntity';
+import { DeliveryStatusEntity } from '../entities/DeliveryStatusEntity';
+import { PriorityLevelEntity } from '../entities/PriorityLevelEntity';
 
 dotenv.config();
 
@@ -13,7 +16,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_DATABASE || 'msnotificaciones',
   synchronize: process.env.NODE_ENV === 'development',
   logging: process.env.NODE_ENV === 'development',
-  entities: [NotificationEntity],
+  entities: [NotificationEntity, NotificationTypeEntity, DeliveryStatusEntity, PriorityLevelEntity],
   migrations: ['src/infrastructure/persistence/migrations/*.ts'],
   subscribers: [],
 });

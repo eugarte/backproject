@@ -1,11 +1,12 @@
-import { SystemClient, CatalogValue } from '../../infrastructure/system/SystemClient';
+import { AppDataSource } from '../../infrastructure/persistence/config/data-source';
+import { UserRoleRepository } from '../../infrastructure/persistence/repositories/UserRoleRepository';
 
 /**
- * User Roles - Obtiene valores del catálogo 'user_roles' de mssistemas
- * Fallback a valores por defecto si mssistemas no está disponible
+ * User Roles - Obtiene valores del catálogo 'user_roles' de la base de datos local
+ * Fallback a valores por defecto si la BD no está disponible
  */
 export class UserRole {
-  private static client: SystemClient | null = null;
+  private static repository: UserRoleRepository | null = null;
   private static cachedValues: Map<string, string> = new Map();
   private static initialized = false;
 
@@ -18,26 +19,35 @@ export class UserRole {
     DEVELOPER: 'developer',
   };
 
-  static setClient(client: SystemClient): void {
-    UserRole.client = client;
+  static initializeRepository(dataSource = AppDataSource): void {
+    if (dataSource.isInitialized) {
+      UserRole.repository = new UserRoleRepository(dataSource);
+    }
   }
 
   static async initialize(): Promise<void> {
     if (UserRole.initialized) return;
 
     try {
-      if (UserRole.client) {
-        const values = await UserRole.client.getCatalogValues('user_roles');
-        if (values.length > 0) {
+      if (!UserRole.repository && AppDataSource.isInitialized) {
+        UserRole.initializeRepository();
+      }
+
+      if (UserRole.repository) {
+        const codes = ['ADMIN', 'USER', 'MODERATOR', 'GUEST', 'DEVELOPER'];
+        const values = await UserRole.repository.findByCodes(codes);
+        
+        // Verificar que values sea un Map válido
+        if (values && values instanceof Map && values.size > 0) {
           UserRole.cachedValues.clear();
-          values.forEach((v: CatalogValue) => {
-            UserRole.cachedValues.set(v.code.toUpperCase(), v.code);
+          values.forEach((value, key) => {
+            UserRole.cachedValues.set(key, value);
           });
-          console.log('[UserRole] Loaded from mssistemas:', Array.from(UserRole.cachedValues.entries()));
+          console.log('[UserRole] Loaded from database:', Array.from(UserRole.cachedValues.entries()));
         }
       }
     } catch (error) {
-      console.warn('[UserRole] Failed to load from mssistemas, using defaults:', error);
+      console.warn('[UserRole] Failed to load from database, using defaults:', error);
     }
 
     UserRole.initialized = true;
@@ -68,8 +78,15 @@ export class UserRole {
       await UserRole.initialize();
     }
 
-    if (UserRole.client) {
-      return await UserRole.client.validateCatalogValue('user_roles', code);
+    if (UserRole.repository) {
+      try {
+        const isValid = await UserRole.repository.validateCode(code);
+        if (typeof isValid === 'boolean') {
+          return isValid;
+        }
+      } catch (error) {
+        console.warn('[UserRole] Repository validation failed, using defaults');
+      }
     }
 
     return Object.values(UserRole.DEFAULT_VALUES).includes(code);
@@ -80,6 +97,21 @@ export class UserRole {
       return Array.from(UserRole.cachedValues.values());
     }
     return Object.values(UserRole.DEFAULT_VALUES);
+  }
+
+  static async getPermissions(roleCode: string): Promise<string[]> {
+    if (!UserRole.initialized) {
+      await UserRole.initialize();
+    }
+
+    if (UserRole.repository) {
+      try {
+        return await UserRole.repository.getPermissions(roleCode);
+      } catch (error) {
+        console.warn('[UserRole] Failed to get permissions from repository');
+      }
+    }
+    return [];
   }
 
   static hasPermission(userRole: string, requiredRole: string): boolean {
@@ -93,5 +125,10 @@ export class UserRole {
 
     return userIndex >= requiredIndex;
   }
-}
 
+  static reset(): void {
+    UserRole.cachedValues.clear();
+    UserRole.initialized = false;
+    UserRole.repository = null;
+  }
+}

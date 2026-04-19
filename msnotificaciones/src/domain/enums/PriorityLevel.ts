@@ -1,11 +1,12 @@
-import { SystemClient, CatalogValue } from '../../infrastructure/system/SystemClient';
+import { AppDataSource } from '../../infrastructure/persistence/config/data-source';
+import { PriorityLevelRepository } from '../../infrastructure/persistence/repositories/PriorityLevelRepository';
 
 /**
- * Priority Level - Obtiene valores del catálogo 'priority_levels' de mssistemas
- * Fallback a valores por defecto si mssistemas no está disponible
+ * Priority Level - Obtiene valores del catálogo 'priority_levels' de la base de datos local
+ * Fallback a valores por defecto si la BD no está disponible
  */
 export class PriorityLevelCatalog {
-  private static client: SystemClient | null = null;
+  private static repository: PriorityLevelRepository | null = null;
   private static cachedValues: Map<string, string> = new Map();
   private static initialized = false;
 
@@ -17,26 +18,35 @@ export class PriorityLevelCatalog {
     CRITICAL: 'critical',
   };
 
-  static setClient(client: SystemClient): void {
-    PriorityLevelCatalog.client = client;
+  static initializeRepository(dataSource = AppDataSource): void {
+    if (dataSource.isInitialized) {
+      PriorityLevelCatalog.repository = new PriorityLevelRepository(dataSource);
+    }
   }
 
   static async initialize(): Promise<void> {
     if (PriorityLevelCatalog.initialized) return;
 
     try {
-      if (PriorityLevelCatalog.client) {
-        const values = await PriorityLevelCatalog.client.getCatalogValues('priority_levels');
-        if (values.length > 0) {
+      if (!PriorityLevelCatalog.repository && AppDataSource.isInitialized) {
+        PriorityLevelCatalog.initializeRepository();
+      }
+
+      if (PriorityLevelCatalog.repository) {
+        const codes = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
+        const values = await PriorityLevelCatalog.repository.findByCodes(codes);
+        
+        // Verificar que values sea un Map válido
+        if (values && values instanceof Map && values.size > 0) {
           PriorityLevelCatalog.cachedValues.clear();
-          values.forEach((v: CatalogValue) => {
-            PriorityLevelCatalog.cachedValues.set(v.code.toUpperCase(), v.code);
+          values.forEach((value, key) => {
+            PriorityLevelCatalog.cachedValues.set(key, value);
           });
-          console.log('[PriorityLevelCatalog] Loaded from mssistemas:', Array.from(PriorityLevelCatalog.cachedValues.entries()));
+          console.log('[PriorityLevelCatalog] Loaded from database:', Array.from(PriorityLevelCatalog.cachedValues.entries()));
         }
       }
     } catch (error) {
-      console.warn('[PriorityLevelCatalog] Failed to load from mssistemas, using defaults:', error);
+      console.warn('[PriorityLevelCatalog] Failed to load from database, using defaults:', error);
     }
 
     PriorityLevelCatalog.initialized = true;
@@ -63,8 +73,15 @@ export class PriorityLevelCatalog {
       await PriorityLevelCatalog.initialize();
     }
 
-    if (PriorityLevelCatalog.client) {
-      return await PriorityLevelCatalog.client.validateCatalogValue('priority_levels', code);
+    if (PriorityLevelCatalog.repository) {
+      try {
+        const isValid = await PriorityLevelCatalog.repository.validateCode(code);
+        if (typeof isValid === 'boolean') {
+          return isValid;
+        }
+      } catch (error) {
+        console.warn('[PriorityLevelCatalog] Repository validation failed, using defaults');
+      }
     }
 
     return Object.values(PriorityLevelCatalog.DEFAULT_VALUES).includes(code);
@@ -75,5 +92,11 @@ export class PriorityLevelCatalog {
       return Array.from(PriorityLevelCatalog.cachedValues.values());
     }
     return Object.values(PriorityLevelCatalog.DEFAULT_VALUES);
+  }
+
+  static reset(): void {
+    PriorityLevelCatalog.cachedValues.clear();
+    PriorityLevelCatalog.initialized = false;
+    PriorityLevelCatalog.repository = null;
   }
 }

@@ -1,11 +1,12 @@
-import { SystemClient, CatalogValue } from '../../infrastructure/system/SystemClient';
+import { AppDataSource } from '../../infrastructure/persistence/config/data-source';
+import { NotificationTypeRepository } from '../../infrastructure/persistence/repositories/NotificationTypeRepository';
 
 /**
- * Notification Type - Obtiene valores del catálogo 'notification_types' de mssistemas
- * Fallback a valores por defecto si mssistemas no está disponible
+ * Notification Type - Obtiene valores del catálogo 'notification_types' de la base de datos local
+ * Fallback a valores por defecto si la BD no está disponible
  */
 export class NotificationTypeCatalog {
-  private static client: SystemClient | null = null;
+  private static repository: NotificationTypeRepository | null = null;
   private static cachedValues: Map<string, string> = new Map();
   private static initialized = false;
 
@@ -17,26 +18,35 @@ export class NotificationTypeCatalog {
     IN_APP: 'in_app',
   };
 
-  static setClient(client: SystemClient): void {
-    NotificationTypeCatalog.client = client;
+  static initializeRepository(dataSource = AppDataSource): void {
+    if (dataSource.isInitialized) {
+      NotificationTypeCatalog.repository = new NotificationTypeRepository(dataSource);
+    }
   }
 
   static async initialize(): Promise<void> {
     if (NotificationTypeCatalog.initialized) return;
 
     try {
-      if (NotificationTypeCatalog.client) {
-        const values = await NotificationTypeCatalog.client.getCatalogValues('notification_types');
-        if (values.length > 0) {
+      if (!NotificationTypeCatalog.repository && AppDataSource.isInitialized) {
+        NotificationTypeCatalog.initializeRepository();
+      }
+
+      if (NotificationTypeCatalog.repository) {
+        const codes = ['EMAIL', 'SMS', 'PUSH', 'IN_APP'];
+        const values = await NotificationTypeCatalog.repository.findByCodes(codes);
+        
+        // Verificar que values sea un Map válido
+        if (values && values instanceof Map && values.size > 0) {
           NotificationTypeCatalog.cachedValues.clear();
-          values.forEach((v: CatalogValue) => {
-            NotificationTypeCatalog.cachedValues.set(v.code.toUpperCase(), v.code);
+          values.forEach((value, key) => {
+            NotificationTypeCatalog.cachedValues.set(key, value);
           });
-          console.log('[NotificationTypeCatalog] Loaded from mssistemas:', Array.from(NotificationTypeCatalog.cachedValues.entries()));
+          console.log('[NotificationTypeCatalog] Loaded from database:', Array.from(NotificationTypeCatalog.cachedValues.entries()));
         }
       }
     } catch (error) {
-      console.warn('[NotificationTypeCatalog] Failed to load from mssistemas, using defaults:', error);
+      console.warn('[NotificationTypeCatalog] Failed to load from database, using defaults:', error);
     }
 
     NotificationTypeCatalog.initialized = true;
@@ -63,8 +73,17 @@ export class NotificationTypeCatalog {
       await NotificationTypeCatalog.initialize();
     }
 
-    if (NotificationTypeCatalog.client) {
-      return await NotificationTypeCatalog.client.validateCatalogValue('notification_types', code);
+    if (NotificationTypeCatalog.repository) {
+      try {
+        const isValid = await NotificationTypeCatalog.repository.validateCode(code);
+        // Si el repositorio retorna un valor válido, usarlo; de lo contrario, usar defaults
+        if (typeof isValid === 'boolean') {
+          return isValid;
+        }
+      } catch (error) {
+        // Si hay error en el repositorio, caer al fallback
+        console.warn('[NotificationTypeCatalog] Repository validation failed, using defaults');
+      }
     }
 
     return Object.values(NotificationTypeCatalog.DEFAULT_VALUES).includes(code);
@@ -75,5 +94,11 @@ export class NotificationTypeCatalog {
       return Array.from(NotificationTypeCatalog.cachedValues.values());
     }
     return Object.values(NotificationTypeCatalog.DEFAULT_VALUES);
+  }
+
+  static reset(): void {
+    NotificationTypeCatalog.cachedValues.clear();
+    NotificationTypeCatalog.initialized = false;
+    NotificationTypeCatalog.repository = null;
   }
 }

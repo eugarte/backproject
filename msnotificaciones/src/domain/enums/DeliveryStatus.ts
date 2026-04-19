@@ -1,11 +1,12 @@
-import { SystemClient, CatalogValue } from '../../infrastructure/system/SystemClient';
+import { AppDataSource } from '../../infrastructure/persistence/config/data-source';
+import { DeliveryStatusRepository } from '../../infrastructure/persistence/repositories/DeliveryStatusRepository';
 
 /**
- * Delivery Status - Obtiene valores del catálogo 'delivery_status' de mssistemas
- * Fallback a valores por defecto si mssistemas no está disponible
+ * Delivery Status - Obtiene valores del catálogo 'delivery_status' de la base de datos local
+ * Fallback a valores por defecto si la BD no está disponible
  */
 export class DeliveryStatusCatalog {
-  private static client: SystemClient | null = null;
+  private static repository: DeliveryStatusRepository | null = null;
   private static cachedValues: Map<string, string> = new Map();
   private static initialized = false;
 
@@ -20,26 +21,35 @@ export class DeliveryStatusCatalog {
     CANCELLED: 'cancelled',
   };
 
-  static setClient(client: SystemClient): void {
-    DeliveryStatusCatalog.client = client;
+  static initializeRepository(dataSource = AppDataSource): void {
+    if (dataSource.isInitialized) {
+      DeliveryStatusCatalog.repository = new DeliveryStatusRepository(dataSource);
+    }
   }
 
   static async initialize(): Promise<void> {
     if (DeliveryStatusCatalog.initialized) return;
 
     try {
-      if (DeliveryStatusCatalog.client) {
-        const values = await DeliveryStatusCatalog.client.getCatalogValues('delivery_status');
-        if (values.length > 0) {
+      if (!DeliveryStatusCatalog.repository && AppDataSource.isInitialized) {
+        DeliveryStatusCatalog.initializeRepository();
+      }
+
+      if (DeliveryStatusCatalog.repository) {
+        const codes = ['PENDING', 'QUEUED', 'SENDING', 'DELIVERED', 'FAILED', 'RETRYING', 'CANCELLED'];
+        const values = await DeliveryStatusCatalog.repository.findByCodes(codes);
+        
+        // Verificar que values sea un Map válido
+        if (values && values instanceof Map && values.size > 0) {
           DeliveryStatusCatalog.cachedValues.clear();
-          values.forEach((v: CatalogValue) => {
-            DeliveryStatusCatalog.cachedValues.set(v.code.toUpperCase(), v.code);
+          values.forEach((value, key) => {
+            DeliveryStatusCatalog.cachedValues.set(key, value);
           });
-          console.log('[DeliveryStatusCatalog] Loaded from mssistemas:', Array.from(DeliveryStatusCatalog.cachedValues.entries()));
+          console.log('[DeliveryStatusCatalog] Loaded from database:', Array.from(DeliveryStatusCatalog.cachedValues.entries()));
         }
       }
     } catch (error) {
-      console.warn('[DeliveryStatusCatalog] Failed to load from mssistemas, using defaults:', error);
+      console.warn('[DeliveryStatusCatalog] Failed to load from database, using defaults:', error);
     }
 
     DeliveryStatusCatalog.initialized = true;
@@ -78,8 +88,15 @@ export class DeliveryStatusCatalog {
       await DeliveryStatusCatalog.initialize();
     }
 
-    if (DeliveryStatusCatalog.client) {
-      return await DeliveryStatusCatalog.client.validateCatalogValue('delivery_status', code);
+    if (DeliveryStatusCatalog.repository) {
+      try {
+        const isValid = await DeliveryStatusCatalog.repository.validateCode(code);
+        if (typeof isValid === 'boolean') {
+          return isValid;
+        }
+      } catch (error) {
+        console.warn('[DeliveryStatusCatalog] Repository validation failed, using defaults');
+      }
     }
 
     return Object.values(DeliveryStatusCatalog.DEFAULT_VALUES).includes(code);
@@ -90,5 +107,11 @@ export class DeliveryStatusCatalog {
       return Array.from(DeliveryStatusCatalog.cachedValues.values());
     }
     return Object.values(DeliveryStatusCatalog.DEFAULT_VALUES);
+  }
+
+  static reset(): void {
+    DeliveryStatusCatalog.cachedValues.clear();
+    DeliveryStatusCatalog.initialized = false;
+    DeliveryStatusCatalog.repository = null;
   }
 }

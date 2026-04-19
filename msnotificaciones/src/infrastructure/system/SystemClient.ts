@@ -115,6 +115,12 @@ export class SystemClient {
   private heartbeatInterval: NodeJS.Timeout | null = null;
 
   constructor(config: SystemClientConfig) {
+    if (!config.baseUrl) {
+      throw new Error('Base URL is required');
+    }
+    if (!config.apiKey) {
+      throw new Error('API Key is required');
+    }
     this.baseUrl = config.baseUrl.replace(/\/$/, '');
     this.apiKey = config.apiKey;
     this.serviceName = config.serviceName;
@@ -268,8 +274,7 @@ export class SystemClient {
 
   async sendHeartbeat(status: 'healthy' | 'degraded' | 'unhealthy' = 'healthy'): Promise<HeartbeatResponse | null> {
     if (!this.serviceId) {
-      console.warn('[SystemClient] Cannot send heartbeat: service not registered');
-      return null;
+      throw new Error('Service not registered');
     }
 
     try {
