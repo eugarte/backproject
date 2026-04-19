@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - DB_NAME=msproducto
+      - DB_POOL_SIZE=15
+      - APP_NAME=msproducto
+      - APP_VERSION=1.0.0
+      - API_PREFIX=/api/v1
+    depends_on:
+      - mysql
+    volumes:
+      - ./src:/app/src
+    command: npm run dev
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=msproducto
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql/01_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+
+volumes:
+  mysql_data:

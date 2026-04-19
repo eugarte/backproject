@@ -1,0 +1,17 @@
+{
+  "name": "backproject-microservices",
+  "version": "1.0.0",
+  "description": "Backend microservices for Hostinger deployment",
+  "scripts": {
+    "start": "node msproducto/src/server.js",
+    "build": "echo 'Building all services...'",
+    "test": "npm run test --workspaces"
+  },
+  "workspaces": [
+    "msproducto",
+    "msclientes",
+    "msnotificaciones",
+    "msseguridad",
+    "mssistemas"
+  ]
+}
