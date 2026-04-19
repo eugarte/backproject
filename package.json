@@ -2,22 +2,16 @@
   "name": "backproject-microservices",
   "version": "1.0.0",
   "description": "Backend microservices for Hostinger deployment",
-  "main": "msproducto/src/server.js",
   "scripts": {
     "start": "node msproducto/src/server.js",
     "build": "echo 'Building all services...'",
-    "test": "echo 'Run tests in each service directory'",
-    "install:all": "npm install && cd msproducto && npm install && cd ../msclientes && npm install && cd ../msnotificaciones && npm install && cd ../msseguridad && npm install && cd ../mssistemas && npm install"
+    "test": "npm run test --workspaces"
   },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "keywords": [
-    "microservices",
-    "nodejs",
-    "hostinger",
-    "mysql"
-  ],
-  "author": "eugarte",
-  "license": "MIT"
+  "workspaces": [
+    "msproducto",
+    "msclientes",
+    "msnotificaciones",
+    "msseguridad",
+    "mssistemas"
+  ]
 }
