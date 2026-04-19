@@ -24,46 +24,47 @@ const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
 // Configuración de Bases de Datos (una por microservicio)
+// Usando los nombres de variables configurados en Hostinger
 const DB_CONFIGS = {
     productos: {
         host: process.env.DB_HOST || 'localhost',
         port: parseInt(process.env.DB_PORT) || 3306,
-        database: process.env.DB_PRODUCTOS_NAME || 'u755818637_dbproductos',
-        user: process.env.DB_PRODUCTOS_USER || 'u755818637_usrproductos',
-        password: process.env.DB_PRODUCTOS_PASSWORD || process.env.DB_PASSWORD || '',
-        connectionLimit: 10
+        database: process.env.DB_NAME || 'u755818637_dbproductos',
+        user: process.env.DB_USER || 'u755818637_usrproductos',
+        password: process.env.DB_PASSWORD || '',
+        connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 15
     },
     clientes: {
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT) || 3306,
-        database: process.env.DB_CLIENTES_NAME || 'u755818637_dbclientes',
-        user: process.env.DB_CLIENTES_USER || 'u755818637_usrclientes',
-        password: process.env.DB_CLIENTES_PASSWORD || process.env.DB_PASSWORD || '',
-        connectionLimit: 10
+        host: process.env.MSCLIENTES_DB_HOST || 'localhost',
+        port: parseInt(process.env.MSCLIENTES_DB_PORT) || 3306,
+        database: process.env.MSCLIENTES_DB_NAME || 'u755818637_dbclientes',
+        user: process.env.MSCLIENTES_DB_USER || 'u755818637_usrclientes',
+        password: process.env.MSCLIENTES_DB_PASSWORD || '',
+        connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 15
     },
     notificaciones: {
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT) || 3306,
-        database: process.env.DB_NOTIFICACIONES_NAME || 'u755818637_dbnotifica',
-        user: process.env.DB_NOTIFICACIONES_USER || 'u755818637_usrnotifica',
-        password: process.env.DB_NOTIFICACIONES_PASSWORD || process.env.DB_PASSWORD || '',
-        connectionLimit: 10
+        host: process.env.MSNOTIFICACIONES_DB_HOST || 'localhost',
+        port: parseInt(process.env.MSNOTIFICACIONES_DB_PORT) || 3306,
+        database: process.env.MSNOTIFICACIONES_DB_NAME || 'u755818637_dbnotifica',
+        user: process.env.MSNOTIFICACIONES_DB_USER || 'u755818637_usrnotifica',
+        password: process.env.MSNOTIFICACIONES_DB_PASSWORD || '',
+        connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 15
     },
     seguridad: {
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT) || 3306,
-        database: process.env.DB_SEGURIDAD_NAME || 'u755818637_dbseguridad',
-        user: process.env.DB_SEGURIDAD_USER || 'u755818637_usrseguridad',
-        password: process.env.DB_SEGURIDAD_PASSWORD || process.env.DB_PASSWORD || '',
-        connectionLimit: 10
+        host: process.env.MSSEGURIDAD_DB_HOST || 'localhost',
+        port: parseInt(process.env.MSSEGURIDAD_DB_PORT) || 3306,
+        database: process.env.MSSEGURIDAD_DB_NAME || 'u755818637_dbseguridad',
+        user: process.env.MSSEGURIDAD_DB_USER || 'u755818637_usrseguridad',
+        password: process.env.MSSEGURIDAD_DB_PASSWORD || '',
+        connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 15
     },
     sistemas: {
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT) || 3306,
-        database: process.env.DB_SISTEMAS_NAME || 'u755818637_dbsistemas',
-        user: process.env.DB_SISTEMAS_USER || 'u755818637_usrsistemas',
-        password: process.env.DB_SISTEMAS_PASSWORD || process.env.DB_PASSWORD || '',
-        connectionLimit: 5
+        host: process.env.MSSISTEMAS_DB_HOST || 'localhost',
+        port: parseInt(process.env.MSSISTEMAS_DB_PORT) || 3306,
+        database: process.env.MSSISTEMAS_DB_NAME || 'u755818637_dbsistemas',
+        user: process.env.MSSISTEMAS_DB_USER || 'u755818637_usrsistemas',
+        password: process.env.MSSISTEMAS_DB_PASSWORD || '',
+        connectionLimit: parseInt(process.env.DB_POOL_SIZE) || 15
     }
 };
 
@@ -122,9 +123,30 @@ function generateUUID() {
 }
 
 // JWT simple (sin librería externa)
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '24h';
+
+// Parsear tiempo de expiración (ej: '24h', '7d', '3600s')
+function parseExpiryTime(expiry) {
+    const match = expiry.match(/^(\d+)([hdm]?)$/);
+    if (!match) return 86400; // default 24h
+    const value = parseInt(match[1]);
+    const unit = match[2];
+    switch(unit) {
+        case 'd': return value * 86400;
+        case 'h': return value * 3600;
+        case 'm': return value * 60;
+        default: return value;
+    }
+}
+
 function generateToken(payload) {
+    const expiresInSeconds = parseExpiryTime(JWT_EXPIRES_IN);
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
-    const body = Buffer.from(JSON.stringify({ ...payload, iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + 86400 })).toString('base64url');
+    const body = Buffer.from(JSON.stringify({ 
+        ...payload, 
+        iat: Math.floor(Date.now() / 1000), 
+        exp: Math.floor(Date.now() / 1000) + expiresInSeconds 
+    })).toString('base64url');
     const crypto = require('crypto');
     const signature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
     return `${header}.${body}.${signature}`;
@@ -168,8 +190,8 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 app.use(rateLimit({
-    windowMs: 60000,
-    max: 100,
+    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 60000,
+    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
     message: { success: false, message: 'Demasiadas peticiones' }
 }));
 app.use(morgan('combined'));
