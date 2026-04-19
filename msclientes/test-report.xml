@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/root/.openclaw/workspace/msclientes-repo/tests/unit/domain/customer.entity.spec.ts">
+    <testCase name="Customer Entity Creation should create a valid customer" duration="8"/>
+    <testCase name="Customer Entity Creation should throw error for missing id" duration="92"/>
+    <testCase name="Customer Entity Creation should throw error for missing customer code" duration="2"/>
+    <testCase name="Customer Entity Creation should throw error for missing first name" duration="2"/>
+    <testCase name="Customer Entity Creation should throw error for invalid email" duration="2"/>
+    <testCase name="Customer Entity Creation with Custom Fields should create customer with all 8 custom fields" duration="4"/>
+    <testCase name="Customer Entity Creation with Custom Fields should create customer without custom fields (all undefined)" duration="2"/>
+    <testCase name="Customer Entity Updates should update basic info" duration="1"/>
+    <testCase name="Customer Entity Updates should update GDPR consent" duration="1"/>
+    <testCase name="Customer Entity Updates should update all 8 custom fields" duration="2"/>
+    <testCase name="Customer Entity Updates should update partial custom fields" duration="2"/>
+    <testCase name="Customer Entity Updates should not update anonymized customer" duration="2"/>
+    <testCase name="Customer Entity Updates should not update custom fields on anonymized customer" duration="1"/>
+    <testCase name="Customer Entity Anonymization should anonymize customer data" duration="1"/>
+    <testCase name="Customer Entity Anonymization should clear all 8 custom fields on anonymization" duration="2"/>
+    <testCase name="Customer Entity Anonymization should export data for GDPR including custom fields" duration="2"/>
+    <testCase name="Customer Entity toJSON should include all 8 custom fields in JSON output" duration="2"/>
+    <testCase name="Customer Entity Soft Delete should soft delete customer" duration="0"/>
+    <testCase name="Customer Entity Soft Delete should restore deleted customer" duration="0"/>
+  </file>
+  <file path="/root/.openclaw/workspace/msclientes-repo/tests/unit/domain/address.entity.spec.ts">
+    <testCase name="Address Entity Creation should create a valid address" duration="4"/>
+    <testCase name="Address Entity Creation should throw error for missing id" duration="25"/>
+    <testCase name="Address Entity Creation should throw error for invalid country code" duration="2"/>
+    <testCase name="Address Entity Methods should set as primary" duration="1"/>
+    <testCase name="Address Entity Methods should verify address" duration="1"/>
+    <testCase name="Address Entity Methods should anonymize" duration="2"/>
+  </file>
+  <file path="/root/.openclaw/workspace/msclientes-repo/tests/unit/domain/tax-id-validator.service.spec.ts">
+    <testCase name="TaxIdValidatorService Spanish Tax IDs should validate valid DNI" duration="2"/>
+    <testCase name="TaxIdValidatorService Spanish Tax IDs should reject invalid DNI format" duration="1"/>
+    <testCase name="TaxIdValidatorService Spanish Tax IDs should validate valid NIF" duration="1"/>
+    <testCase name="TaxIdValidatorService Spanish Tax IDs should validate valid CIF" duration="1"/>
+    <testCase name="TaxIdValidatorService Mexican RFC should validate valid RFC" duration="1"/>
+    <testCase name="TaxIdValidatorService Argentinian CUIT should validate valid CUIT" duration="1"/>
+    <testCase name="TaxIdValidatorService Generic validation should accept any tax ID for unknown countries with length &gt;= 5" duration="1"/>
+  </file>
+  <file path="/root/.openclaw/workspace/msclientes-repo/tests/unit/domain/contact.entity.spec.ts">
+    <testCase name="Contact Entity Creation should create a valid email contact" duration="2"/>
+    <testCase name="Contact Entity Creation should create a valid phone contact" duration="1"/>
+    <testCase name="Contact Entity Creation should throw error for invalid email" duration="13"/>
+    <testCase name="Contact Entity Methods should verify contact" duration="1"/>
+    <testCase name="Contact Entity Methods should anonymize" duration="1"/>
+  </file>
+  <file path="/root/.openclaw/workspace/msclientes-repo/tests/integration/api.spec.ts">
+  </file>
+</testExecutions>

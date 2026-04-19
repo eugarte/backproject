@@ -1,0 +1,97 @@
+replicaCount: 3
+
+image:
+  tag: "latest"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 60
+  targetMemoryUtilizationPercentage: 70
+
+env:
+  - name: NODE_ENV
+    value: "production"
+  - name: PORT
+    value: "3000"
+  - name: LOG_LEVEL
+    value: "info"
+  - name: DB_HOST
+    valueFrom:
+      secretKeyRef:
+        name: msseguridad-db-credentials
+        key: host
+  - name: DB_PORT
+    value: "3306"
+  - name: DB_NAME
+    value: "msseguridad"
+  - name: DB_USER
+    valueFrom:
+      secretKeyRef:
+        name: msseguridad-db-credentials
+        key: username
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: msseguridad-db-credentials
+        key: password
+  - name: REDIS_HOST
+    valueFrom:
+      secretKeyRef:
+        name: msseguridad-redis-credentials
+        key: host
+  - name: REDIS_PORT
+    value: "6379"
+  - name: REDIS_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: msseguridad-redis-credentials
+        key: password
+  - name: JWT_PRIVATE_KEY_PATH
+    value: "/secrets/jwt/private.pem"
+  - name: JWT_PUBLIC_KEY_PATH
+    value: "/secrets/jwt/public.pem"
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "1000"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+  hosts:
+    - host: api.msseguridad.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: msseguridad-tls
+      hosts:
+        - api.msseguridad.example.com
+
+pdb:
+  enabled: true
+  minAvailable: 2
+
+networkPolicy:
+  enabled: true
+
+serviceMonitor:
+  enabled: true
+
+grafana:
+  enabled: true

@@ -1,0 +1,1 @@
+status: Docker not installed - installing now

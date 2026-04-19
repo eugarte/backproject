@@ -1,0 +1,82 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Security reports
+semgrep-report.json
+snyk-report.json
+npm-audit-report.json
+trivy-results.sarif
+sbom.*.json
+
+# SonarQube
+.scannerwork/
+sonar-project.properties.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+junit.xml
+test-results/
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets
+keys/*.pem
+keys/*.key
+*.pem
+*.key
+secrets/
+
+# Docker volumes
+docker-volumes/
+
+# Kubernetes
+k8s/helm/charts/
+k8s/helm/Chart.lock
+*.tgz
+
+# Misc
+.cache/
+temp/
+tmp/
+*.tmp

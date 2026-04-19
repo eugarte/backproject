@@ -1,0 +1,763 @@
+openapi: 3.0.0
+info:
+  title: mssistemas API
+  description: Microservicio de Catálogo y Configuración Centralizada
+  version: 1.0.0
+  contact:
+    email: support@example.com
+
+servers:
+  - url: http://localhost:3000/api/v1
+    description: Development server
+
+paths:
+  /catalogs:
+    get:
+      summary: List all catalogs
+      tags:
+        - Catalogs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of catalogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Catalog'
+    
+    post:
+      summary: Create a new catalog
+      tags:
+        - Catalogs
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCatalogRequest'
+      responses:
+        '201':
+          description: Catalog created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalog'
+  
+  /catalogs/{id}:
+    get:
+      summary: Get catalog by ID
+      tags:
+        - Catalogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Catalog found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalog'
+        '404':
+          description: Catalog not found
+    
+    put:
+      summary: Update catalog
+      tags:
+        - Catalogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCatalogRequest'
+      responses:
+        '200':
+          description: Catalog updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Catalog'
+    
+    delete:
+      summary: Delete catalog
+      tags:
+        - Catalogs
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Catalog deleted
+  
+  /catalogs/{id}/values:
+    get:
+      summary: Get all values for a catalog
+      tags:
+        - Catalog Values
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of catalog values
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogValue'
+    
+    post:
+      summary: Add value to catalog
+      tags:
+        - Catalog Values
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCatalogValueRequest'
+      responses:
+        '201':
+          description: Value created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatalogValue'
+  
+  /public/catalogs/{key}/values:
+    get:
+      summary: Get public catalog values (no auth required)
+      tags:
+        - Public API
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of catalog values
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CatalogValue'
+  
+  /services:
+    get:
+      summary: List all services
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+    
+    post:
+      summary: Register a new service
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateServiceRequest'
+      responses:
+        '201':
+          description: Service created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+  
+  /services/{id}/heartbeat:
+    post:
+      summary: Register service heartbeat
+      tags:
+        - Services
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatRequest'
+      responses:
+        '201':
+          description: Heartbeat registered
+  
+  /configurations:
+    get:
+      summary: List configurations
+      tags:
+        - Configurations
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of configurations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Configuration'
+    
+    post:
+      summary: Create configuration
+      tags:
+        - Configurations
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConfigurationRequest'
+      responses:
+        '201':
+          description: Configuration created
+  
+  /secrets:
+    get:
+      summary: List secrets (metadata only)
+      tags:
+        - Secrets
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of secrets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Secret'
+    
+    post:
+      summary: Create secret
+      tags:
+        - Secrets
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSecretRequest'
+      responses:
+        '201':
+          description: Secret created
+  
+  /feature-flags:
+    get:
+      summary: List feature flags
+      tags:
+        - Feature Flags
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of feature flags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeatureFlag'
+    
+    post:
+      summary: Create feature flag
+      tags:
+        - Feature Flags
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeatureFlagRequest'
+      responses:
+        '201':
+          description: Feature flag created
+  
+  /feature-flags/{key}/evaluate:
+    post:
+      summary: Evaluate feature flag
+      tags:
+        - Feature Flags
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                userGroups:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Evaluation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  key:
+                    type: string
+                  enabled:
+                    type: boolean
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    Catalog:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        allowMultiple:
+          type: boolean
+        isActive:
+          type: boolean
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateCatalogRequest:
+      type: object
+      required:
+        - key
+        - name
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        allowMultiple:
+          type: boolean
+        isActive:
+          type: boolean
+    
+    UpdateCatalogRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        allowMultiple:
+          type: boolean
+        isActive:
+          type: boolean
+    
+    CatalogValue:
+      type: object
+      properties:
+        id:
+          type: string
+        catalogId:
+          type: string
+        code:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        sortOrder:
+          type: integer
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateCatalogValueRequest:
+      type: object
+      required:
+        - code
+        - label
+      properties:
+        code:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        color:
+          type: string
+        sortOrder:
+          type: integer
+        isDefault:
+          type: boolean
+        isActive:
+          type: boolean
+    
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        statusCatalogId:
+          type: string
+        statusValue:
+          type: string
+        teamOwner:
+          type: string
+        repositoryUrl:
+          type: string
+        documentationUrl:
+          type: string
+        technologyStack:
+          type: array
+          items:
+            type: string
+        healthCheckUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateServiceRequest:
+      type: object
+      required:
+        - name
+        - displayName
+      properties:
+        name:
+          type: string
+        displayName:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        statusCatalogId:
+          type: string
+        statusValue:
+          type: string
+        teamOwner:
+          type: string
+        repositoryUrl:
+          type: string
+        documentationUrl:
+          type: string
+        technologyStack:
+          type: array
+          items:
+            type: string
+        healthCheckUrl:
+          type: string
+    
+    HeartbeatRequest:
+      type: object
+      properties:
+        environment:
+          type: string
+        instanceId:
+          type: string
+        status:
+          type: string
+          enum: [up, down, degraded]
+        responseTimeMs:
+          type: integer
+        version:
+          type: string
+        metadata:
+          type: object
+    
+    Configuration:
+      type: object
+      properties:
+        id:
+          type: string
+        serviceId:
+          type: string
+        environment:
+          type: string
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+          enum: [string, number, boolean, json, yaml]
+        isSecret:
+          type: boolean
+        isEncrypted:
+          type: boolean
+        version:
+          type: integer
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateConfigurationRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+          enum: [string, number, boolean, json, yaml]
+        serviceId:
+          type: string
+        environment:
+          type: string
+        isSecret:
+          type: boolean
+        isEncrypted:
+          type: boolean
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+    
+    Secret:
+      type: object
+      properties:
+        id:
+          type: string
+        serviceId:
+          type: string
+        environment:
+          type: string
+        key:
+          type: string
+        encryptedValue:
+          type: string
+        encryptionVersion:
+          type: string
+        isRotating:
+          type: boolean
+        lastRotatedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateSecretRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        serviceId:
+          type: string
+        environment:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    
+    FeatureFlag:
+      type: object
+      properties:
+        id:
+          type: string
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        strategy:
+          type: string
+          enum: [simple, percentage, user_target, group_target, schedule]
+        percentage:
+          type: integer
+        targetUsers:
+          type: array
+          items:
+            type: string
+        targetGroups:
+          type: array
+          items:
+            type: string
+        scheduleStart:
+          type: string
+          format: date-time
+        scheduleEnd:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    
+    CreateFeatureFlagRequest:
+      type: object
+      required:
+        - key
+        - name
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        enabled:
+          type: boolean
+        strategy:
+          type: string
+          enum: [simple, percentage, user_target, group_target, schedule]
+        percentage:
+          type: integer
+        targetUsers:
+          type: array
+          items:
+            type: string
+        targetGroups:
+          type: array
+          items:
+            type: string
+        scheduleStart:
+          type: string
+          format: date-time
+        scheduleEnd:
+          type: string
+          format: date-time

@@ -1,0 +1,58 @@
+rules:
+  # Detect hardcoded secrets in Node.js
+  - id: hardcoded-jwt-secret
+    languages:
+      - javascript
+      - typescript
+    message: "Hardcoded JWT secret detected"
+    severity: ERROR
+    pattern-either:
+      - pattern: const $SECRET = "..."
+      - pattern: const $SECRET = '...'
+    metavariable-regex:
+      metavariable: $SECRET
+      regex: (?i)(jwt|secret|key|token|password|auth)
+    paths:
+      include:
+        - "src/**/*.ts"
+        - "src/**/*.js"
+
+  # Detect SQL injection risks
+  - id: sql-injection-risk
+    languages:
+      - typescript
+      - javascript
+    message: "Potential SQL injection vulnerability"
+    severity: WARNING
+    pattern-regex: query.*\+.*req\.(body|query|params)
+
+  # Detect insecure crypto usage
+  - id: insecure-crypto
+    languages:
+      - typescript
+      - javascript
+    message: "Insecure cryptographic algorithm detected"
+    severity: ERROR
+    pattern-regex: (createHash\(['"]md5['"]\)|createHash\(['"]sha1['"]\))
+
+  # Detect missing rate limiting
+  - id: missing-rate-limit
+    languages:
+      - typescript
+      - javascript
+    message: "Missing rate limiting on authentication endpoints"
+    severity: WARNING
+    pattern-regex: (post|get|put|delete)\(['"](/auth|/login|/api/auth)['"]\)
+    paths:
+      include:
+        - "src/**/*route*.ts"
+        - "src/**/*route*.js"
+
+  # Detect CORS misconfiguration
+  - id: cors-wildcard
+    languages:
+      - typescript
+      - javascript
+    message: "CORS wildcard origin detected"
+    severity: WARNING
+    pattern-regex: origin\s*:\s*\*\s*\}
