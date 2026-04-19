@@ -594,6 +594,77 @@ app.get(`${API}/auth/users`, authMiddleware, async (req, res) => {
     }
 });
 
+// Activar usuario (cambiar status a ACTIVE)
+app.patch(`${API}/auth/users/:id/activate`, authMiddleware, async (req, res) => {
+    try {
+        const pool = pools.seguridad;
+        const { id } = req.params;
+        
+        const [result] = await pool.execute(
+            `UPDATE users SET status = 'ACTIVE', email_verified = TRUE, updated_at = NOW() 
+             WHERE id = ? AND deleted_at IS NULL`,
+            [id]
+        );
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+        
+        res.json({ success: true, message: 'Usuario activado correctamente', data: { id, status: 'ACTIVE' } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Actualizar status de usuario (admin)
+app.patch(`${API}/auth/users/:id/status`, authMiddleware, async (req, res) => {
+    try {
+        const pool = pools.seguridad;
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        const validStatuses = ['ACTIVE', 'INACTIVE', 'PENDING', 'SUSPENDED', 'BANNED', 'LOCKED'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ success: false, message: 'Status inválido' });
+        }
+        
+        const [result] = await pool.execute(
+            `UPDATE users SET status = ?, updated_at = NOW() WHERE id = ? AND deleted_at IS NULL`,
+            [status, id]
+        );
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+        
+        res.json({ success: true, message: 'Status actualizado', data: { id, status } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// Verificar email (simulado - en producción enviaría email)
+app.patch(`${API}/auth/users/:id/verify-email`, authMiddleware, async (req, res) => {
+    try {
+        const pool = pools.seguridad;
+        const { id } = req.params;
+        
+        const [result] = await pool.execute(
+            `UPDATE users SET email_verified = TRUE, status = 'ACTIVE', email_verified_at = NOW(), updated_at = NOW() 
+             WHERE id = ? AND deleted_at IS NULL`,
+            [id]
+        );
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+        }
+        
+        res.json({ success: true, message: 'Email verificado y usuario activado', data: { id, email_verified: true, status: 'ACTIVE' } });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 // Roles y catálogos de seguridad
 app.get(`${API}/auth/catalogs`, async (req, res) => {
     try {
