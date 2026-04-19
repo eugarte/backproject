@@ -1,7 +1,7 @@
 {
   "name": "backproject",
   "version": "1.0.0",
-  "description": "Backend microservices for Hostinger deployment",
+  "description": "Backend microservices unified for Hostinger deployment",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,6 +12,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.3",
@@ -26,7 +27,8 @@
     "microservices",
     "hostinger",
     "nodejs",
-    "mysql"
+    "mysql",
+    "unified"
   ],
   "author": "ZagaloAI",
   "license": "ISC"
